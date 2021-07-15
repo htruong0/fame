@@ -16,7 +16,11 @@ FAME requires the following packages to run:
     ```
     pip install -e .
     ```
-
+3. Point your to your NJet installation in:
+    ```
+    src/fame/utilities/njet_functions.py
+    ```
+    
 ## Usage
 An example Jupyter notebook is provided in
 ```bash
