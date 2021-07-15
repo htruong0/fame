@@ -16,7 +16,7 @@ FAME requires the following packages to run:
     ```
     pip install -e .
     ```
-3. Point your to your NJet installation in:
+3. Point to your NJet installation in:
     ```
     src/fame/utilities/njet_functions.py
     ```
