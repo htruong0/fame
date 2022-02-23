@@ -286,7 +286,7 @@ class DipoleModel():
             return weights
         return history
     
-    def dipole_network_predictor(self, model, inputs, momenta, batch_size=2**16):
+    def dipole_network_predictor(self, model, inputs, momenta, model_type="bare", batch_size=2**16):
         if self.phis:
             phi_terms = model_inputs.calculate_cs_phis(momenta, self.num_jets, cast=True)
             if momenta.dtype != np.float32:
@@ -296,11 +296,18 @@ class DipoleModel():
             if momenta.dtype != np.float32:
                 momenta = momenta.astype(np.float32)
             dipoles, ys = inputs.calculate_inputs(momenta)
-            
-        coefs = model.predict(
-            [momenta[:, 2:], ys, np.zeros_like(dipoles.numpy()), np.zeros(len(momenta))],
-            verbose=1,
-            batch_size=batch_size
-        )
+        
+        if model_type == "bare":
+            coefs = model.predict(
+                [momenta[:, 2:], ys],
+                verbose=1,
+                batch_size=batch_size
+            )
+        else:
+            coefs = model.predict(
+                [momenta[:, 2:], ys, np.zeros_like(dipoles), np.zeros(len(momenta))],
+                verbose=1,
+                batch_size=batch_size
+            )
         prediction = tf.reduce_sum(tf.multiply(coefs, dipoles), axis=1)
         return coefs, ys, dipoles, prediction.numpy()
