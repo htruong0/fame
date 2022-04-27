@@ -1,5 +1,5 @@
+from ctypes import util
 from itertools import combinations
-import tensorflow as tf
 from collections import OrderedDict
 from fame.utilities import utility_functions
 
@@ -20,9 +20,9 @@ class PSpoint():
         self.combs = list(combinations(range(1, self.num_jets+1), 2))
         self.keys = [''.join(str(comb[0]) + str(comb[1])) for comb in self.combs]
         self.sij = self.calculate_sij()
-        self.minsij = tf.reduce_min(list(self.sij.values()))
-        tf.debugging.Assert(tf.less(y_global_cut*w**2, self.minsij), ["min sij below cut", self.minsij])
-        #self.minsij, self.minkey = min([(s[1], s[0]) for s in list(self.sij.items())])
+        self.minsij, self.minkey = min([(s[1], s[0]) for s in list(self.sij.items())])
+        if self.minsij < y_global_cut*w**2:
+            raise utility_functions.myException("min sij below global phase-space cut.")
 
         
     def __eq__(self, other):

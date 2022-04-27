@@ -13,9 +13,10 @@ extraorder = """
 Extra MCSymmetrizeFinal       yes
 Extra HelAvgInitial           yes
 Extra ColAvgInitial           yes
-Extra NJetOmit16PiSq          yes
+Extra NJetOmit16PiSq          no
 
 SetParameter mass(23)         91.18810
+# SetParameter mass(23)         10000000
 SetParameter mass(24)         80.419
 SetParameter Width(23)        2.441404
 SetParameter Width(24)        2.0476

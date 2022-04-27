@@ -81,9 +81,10 @@ class ModelInputsGenerator():
     Class to compute inputs to neural network.
     '''
     
-    def __init__(self, permutations, CS):
+    def __init__(self, permutations, CS, cast):
         self.permutations = permutations
         self.CS = CS
+        self.cast = cast
         
     def calculate_Ds(self, p):
         '''Calculate Catani-Seymour dipoles.'''
@@ -106,7 +107,10 @@ class ModelInputsGenerator():
     def calculate_inputs(self, p_array, to_concat=None):
         '''Vectorise input computations.'''
         dipoles = tf.vectorized_map(self.calculate_Ds, p_array)
+        ys = tf.vectorized_map(self.calculate_ys, p_array)
+        if self.cast:
+            dipoles = tf.cast(dipoles, tf.float32)
+            ys = tf.cast(ys, tf.float32)
         if to_concat:
             dipoles = tf.concat([dipoles, *to_concat], axis=1)
-        ys = tf.vectorized_map(self.calculate_ys, p_array)
         return dipoles, ys

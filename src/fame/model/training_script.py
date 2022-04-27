@@ -28,7 +28,7 @@ train_points = 800000
 test_points = 200000
 num_points = train_points + test_points # number of phase-space points to generate
 y_global_cut = 0.01 # global phase-space cut
-i = int(sys.argv[1])
+i = int(sys.argv[1]) # training 20 models, i = {0, ..., 19}
 
 # load data from Timo
 print("Loading data...")
