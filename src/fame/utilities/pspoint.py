@@ -1,3 +1,4 @@
+import numpy as np
 from itertools import combinations
 from collections import OrderedDict
 from fame.utilities import utility_functions
@@ -8,7 +9,7 @@ def idot(p1, p2):
 class PSpoint(object):
     '''A phase-space point class which can be used to calculate all Mandelstam invariants.'''
 
-    def __init__(self, four_moms, num_jets, w, y_global_cut):
+    def __init__(self, four_moms, num_jets, w):
         self.four_moms = four_moms
         self.E = four_moms[:, 0]
         self.px = four_moms[:, 1]
@@ -16,12 +17,11 @@ class PSpoint(object):
         self.pz = four_moms[:, 3]
         self.w = w
         self.num_jets = num_jets
-        self.combs = list(combinations(range(1, self.num_jets+1), 2))
+        particles = list(range(1, self.num_jets+3))
+        self.combs = list(combinations(particles, 2))
         self.keys = [''.join(str(comb[0]) + str(comb[1])) for comb in self.combs]
         self.sij = self.calculate_sij()
         self.minsij, self.minkey = min([(s[1], s[0]) for s in list(self.sij.items())])
-        if self.minsij < y_global_cut*w**2:
-            raise utility_functions.myException("min sij below global phase-space cut.")
         
     def __eq__(self, other):
         if type(self) == type(other):
@@ -109,7 +109,7 @@ class PSpoint(object):
     def calculate_sij(self):
         sij = OrderedDict()
         for i, comb in enumerate(self.combs):
-            pi = self.four_moms[comb[0]+1]
-            pj = self.four_moms[comb[1]+1]
+            pi = self.four_moms[comb[0]-1]
+            pj = self.four_moms[comb[1]-1]
             sij[self.keys[i]] = 2*idot(pi, pj)
         return sij
