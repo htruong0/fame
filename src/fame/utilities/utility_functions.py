@@ -40,38 +40,37 @@ def dot(p1, p2):
     elif len(p1.shape) == 3:
         return p1[:, :, 0]*p2[:, :, 0] - p1[:, :, 1]*p2[:, :, 1] - p1[:, :, 2]*p2[:, :, 2] - p1[:, :, 3]*p2[:, :, 3]
 
-def check_kinematics(momenta, w):
+def check_kinematics(momenta):
     '''Check momenta is on-shell and momentum is conserved.'''
-    num_jets = len(momenta[0]) - 2
-    sum_mom = np.sum(momenta, axis=1)
+    incoming_mom = np.sum(momenta[:, :2], axis=1)
+    outgoing_mom = np.sum(momenta[:, 2:], axis=1)
     
-    check_mom_cons = np.isclose(sum_mom, [2*w, 0, 0, 0], rtol=1E-5, atol=1E-5)
+    check_mom_cons = np.isclose(outgoing_mom, incoming_mom, rtol=1E-8, atol=1E-8)
     if check_mom_cons.all() == True:
-        print('\n######## Momentum conserved for all phase space points ##########\n')
+        print('\n######## Momentum conserved for all phase-space points ##########\n')
     else:
-        print('\n######## Not all phase space points conserve momentum  ##########')
-        print('### {} / {} phase space points violate momentum conservation ###\n'.format(len(momenta - np.sum(check_mom_cons)), len(momenta)))
+        print('\n######## Not all phase-space points conserve momentum  ##########')
+        print(f'### {len(momenta) - np.sum(check_mom_cons)} / {len(momenta)} phase-space points violate momentum conservation ###\n')
         
-    max_idx = np.unravel_index(np.argmax(sum_mom, axis=None), sum_mom.shape)[0]
+    delta = np.abs(outgoing_mom - incoming_mom)
+    max_idx = np.unravel_index(np.argmax(delta, axis=None), delta.shape)[0]
     
-    print('Least momentum conserving phase space point = \n{}\n'.format(sum_mom[max_idx]-np.array([2*w, 0, 0, 0])))
+    print(f'Least momentum conserving phase-space point = \n{delta[max_idx]}\n')
     
     masses = dot(momenta, momenta)
-    max_idx = np.unravel_index(np.argmax(masses, axis=None), masses.shape)[0]
+    max_idx = np.unravel_index(np.argmax(np.abs(masses), axis=None), masses.shape)[0]
 
-
-    check_onshell = np.isclose(masses, np.zeros_like(masses), rtol=1E-5, atol=1E-5)
+    check_onshell = np.isclose(masses, np.zeros_like(masses), rtol=1E-7, atol=1E-7)
         
     if check_onshell.all() == True:
-        print('##### All particles at each phase space point are on-shell ######\n')
+        print('##### All particles at each phase-space point are on-shell ######\n')
     else:
         print('################# Not all particles are on-shell ################')
-        print('### {} / {} phase space points violate on-shell condition ###\n'.format(len(momenta - np.sum(check_onshell)), len(momenta)))
+        print(f'### {len(momenta - np.sum(check_onshell))} / {len(momenta)} phase-space points violate on-shell condition ###\n')
         
-    
-    print('Most off-shell phase space point = \n{}'.format(masses[max_idx]))
-
-    return "\n#################################################################"
+    print('Most off-shell phase-space point = \n{}'.format(masses[max_idx]))
+    print("\n#################################################################")
+    return None
 
 def get_process_name(num_jets, mode='gluon'):
     '''Generate process name for number of jets.'''
