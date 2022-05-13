@@ -9,19 +9,19 @@ def idot(p1, p2):
 class PSpoint(object):
     '''A phase-space point class which can be used to calculate all Mandelstam invariants.'''
 
-    def __init__(self, four_moms, num_jets, w):
+    def __init__(self, four_moms):
         self.four_moms = four_moms
         self.E = four_moms[:, 0]
         self.px = four_moms[:, 1]
         self.py = four_moms[:, 2]
         self.pz = four_moms[:, 3]
-        self.w = w
-        self.num_jets = num_jets
-        particles = list(range(1, self.num_jets+3))
+        self.num_jets = self.four_moms.shape[0]
+        particles = list(range(1, self.num_jets+1))
         self.combs = list(combinations(particles, 2))
         self.keys = [''.join(str(comb[0]) + str(comb[1])) for comb in self.combs]
         self.sij = self.calculate_sij()
-        self.minsij, self.minkey = min([(s[1], s[0]) for s in list(self.sij.items())])
+        self.s_com = self.sij["12"]
+        # self.minsij, self.minkey = min([(s[1], s[0]) for s in list(self.sij.items())])
         
     def __eq__(self, other):
         if type(self) == type(other):
