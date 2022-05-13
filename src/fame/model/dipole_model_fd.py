@@ -1,6 +1,4 @@
-# rewrite dipole_model.py such that it is acble to be exported via frugally-deep
-
-from itertools import combinations
+# rewrite dipole_model.py such that it is able to be exported via frugally-deep
 
 import os
 import numpy as np
@@ -8,9 +6,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import backend as K
-K.set_floatx('float32')
+K.set_floatx('float64')
 
-from fame.data_generation import model_inputs
+from fame_pp.data_generation import model_inputs
 
 
 @tf.keras.utils.register_keras_serializable()
@@ -41,97 +39,106 @@ class LogLayer(layers.Layer):
 
 class DipoleModel():
     def __init__(
-        self, num_jets, permutations, X, Y, recoil_factors, dipoles, pred_scale, coef_scale, J
+        self,
+        num_jets,
+        permutations,
+        X,
+        Y,
+        recoil_factors,
+        mandelstams,
+        dipoles,
+        pred_scale,
+        coef_scale,
+        J,
+        nodes=64,
+        activation_function="relu",
+        kernel_initialiser="he_uniform"
     ):
         self.num_jets = num_jets
         self.permutations = permutations
-        self.X = X[:, 2:]
+        self.X = X
         self.Y = Y
         self.recoil_factors = recoil_factors
+        self.mandelstams = mandelstams
         self.dipoles = dipoles
-        self.pred_scale = np.float32(pred_scale)
-        self.coef_scale = np.float32(coef_scale)
+        self.pred_scale = pred_scale
+        self.coef_scale = coef_scale
         self.J = np.float32(J)
+        self.nodes = nodes
+        self.activation_function = activation_function
+        self.kernel_initialiser = kernel_initialiser
     
     def build_model(self):
         '''Builds dipole model with custom loss function.'''
 
-        num_dipoles = len(self.permutations)
-        if self.num_jets > 3:
-            self.phis = True
-        else:
-            self.phis = False
-
-        if self.phis:
-            gluon_combinations = list(combinations(range(3, self.num_jets+1), 2))
-            num_dipoles = len(self.permutations)+len(gluon_combinations)*2
+        num_recoils = self.recoil_factors.shape[1]
+        num_dipoles = self.dipoles.shape[1]
+        num_sijs = self.mandelstams.shape[1]
 
         # set shapes for inputs
         inputs_raw = keras.Input(shape=(self.num_jets, 4,))
-        ys = keras.Input(shape=(len(self.permutations),))
+        recoils = keras.Input(shape=(num_recoils,))
+        sijs = keras.Input(shape=(num_sijs,))
         targets = keras.Input(shape=(1,))
         dipoles = keras.Input(shape=(num_dipoles,))
 
-        inputs = [inputs_raw, ys, dipoles, targets]
+        inputs = [inputs_raw, recoils, sijs, dipoles, targets]
 
         # standardise inputs
         x = self.x_scaler(inputs_raw)
-        ys = self.recoil_scaler(LogLayer()(ys))
+        rfs = self.recoil_scaler(LogLayer()(recoils))
+        ss = self.sij_scaler(LogLayer()(sijs))
 
         # get inputs into correct shape
         x = layers.Flatten()(x)
-        x = layers.Concatenate()([x, ys])
-        
-        x = layers.Dense(256, activation="tanh", kernel_initializer="glorot_uniform")(x)
-        x = layers.Dense(256, activation="tanh", kernel_initializer="glorot_uniform")(x)
-        x = layers.Dense(256, activation="tanh", kernel_initializer="glorot_uniform")(x)
-        x = layers.Dense(256, activation="tanh", kernel_initializer="glorot_uniform")(x)
+        x = layers.Concatenate()([x, rfs, ss])
+
+        x = layers.Dense(self.nodes, activation=self.activation_function, kernel_initializer=self.kernel_initialiser)(x)
+        x = layers.Dense(self.nodes, activation=self.activation_function, kernel_initializer=self.kernel_initialiser)(x)
+        x = layers.Dense(self.nodes, activation=self.activation_function, kernel_initializer=self.kernel_initialiser)(x)
+        x = layers.Dense(self.nodes, activation=self.activation_function, kernel_initializer=self.kernel_initialiser)(x)
         x = layers.Dense(num_dipoles)(x)
         outputs = CoefSinhLayer(self.coef_scale)(x)
 
         # add custom loss to model and metrics for monitoring whilst training
         model = keras.Model(inputs=inputs, outputs=outputs, name=f"dipole_{self.num_jets}_jets")
         model.add_loss(self.custom_loss(targets, outputs, dipoles))
-        model.add_metric(self.custom_MSE(targets, outputs, dipoles), name='mse')
-        model.add_metric(self.factorisation_penalty(outputs, dipoles), name='f_pen')
+        # model.add_metric(self.custom_MSE(targets, outputs, dipoles), name='mse')
+        # model.add_metric(self.factorisation_penalty(outputs, dipoles), name='f_pen')
         self.model = model
         
         
     def build_bare_model(self):
         '''Builds dipole model with custom loss function.'''
 
-        num_dipoles = len(self.permutations)
-        if self.num_jets > 3:
-            self.phis = True
-        else:
-            self.phis = False
-
-        if self.phis:
-            gluon_combinations = list(combinations(range(3, self.num_jets+1), 2))
-            num_dipoles = len(self.permutations)+len(gluon_combinations)*2
+        num_recoils = self.recoil_factors.shape[1]
+        num_dipoles = self.dipoles.shape[1]
+        num_sijs = self.mandelstams.shape[1]
 
         # set shapes for inputs
         inputs_raw = keras.Input(shape=(self.num_jets, 4,))
-        ys = keras.Input(shape=(len(self.permutations),))
+        recoils = keras.Input(shape=(num_recoils,))
+        sijs = keras.Input(shape=(num_sijs,))
 
-        inputs = [inputs_raw, ys]
+        inputs = [inputs_raw, recoils, sijs]
 
         # standardise inputs
         x = self.x_scaler(inputs_raw)
-        ys = self.recoil_scaler(LogLayer()(ys))
+        rfs = self.recoil_scaler(LogLayer()(recoils))
+        ss = self.sij_scaler(LogLayer()(sijs))
 
         # get inputs into correct shape
         x = layers.Flatten()(x)
-        x = layers.Concatenate()([x, ys])
+        x = layers.Concatenate()([x, rfs, ss])
 
-        x = layers.Dense(256, activation="tanh", kernel_initializer="glorot_uniform")(x)
-        x = layers.Dense(256, activation="tanh", kernel_initializer="glorot_uniform")(x)
-        x = layers.Dense(256, activation="tanh", kernel_initializer="glorot_uniform")(x)
-        x = layers.Dense(256, activation="tanh", kernel_initializer="glorot_uniform")(x)
+        x = layers.Dense(self.nodes, activation=self.activation_function, kernel_initializer=self.kernel_initialiser)(x)
+        x = layers.Dense(self.nodes, activation=self.activation_function, kernel_initializer=self.kernel_initialiser)(x)
+        x = layers.Dense(self.nodes, activation=self.activation_function, kernel_initializer=self.kernel_initialiser)(x)
+        x = layers.Dense(self.nodes, activation=self.activation_function, kernel_initializer=self.kernel_initialiser)(x)
         x = layers.Dense(num_dipoles)(x)
         outputs = CoefSinhLayer(self.coef_scale)(x)
 
-        model = keras.Model(inputs=inputs, outputs=outputs, name=f"dipole_{self.num_jets}_jets")
+        model = keras.Model(inputs=inputs, outputs=outputs, name=f"bare_dipole_{self.num_jets}_jets")
         self.bare_model = model
         
         
@@ -156,8 +163,9 @@ class DipoleModel():
     def custom_loss(self, y_true, y_preds, dipoles):
         '''Total loss function is the sum of MSE + factorisation penalty.'''
         mse = self.custom_MSE(y_true, y_preds, dipoles)
-        f_pen = self.factorisation_penalty(y_preds, dipoles)
-        return tf.math.add(mse, f_pen)
+        # f_pen = self.factorisation_penalty(y_preds, dipoles)
+        # return tf.math.add(mse, f_pen)
+        return mse
 
     def preprocess_inputs(self, batch_size=2**16):
         '''Preprocess input by standardising and fit scalers.'''
@@ -168,6 +176,9 @@ class DipoleModel():
         self.recoil_scaler = layers.Normalization(axis=1)
         # log recoil factors as they can be very small
         self.recoil_scaler.adapt(tf.math.log(self.recoil_factors), batch_size=batch_size)
+
+        self.sij_scaler = layers.Normalization(axis=1)
+        self.sij_scaler.adapt(tf.math.log(self.mandelstams), batch_size=batch_size)
 
         self.y_scaler = layers.Normalization(axis=None)
         # arcsinh labels acts like log but still works if argument is negative
@@ -199,7 +210,7 @@ class DipoleModel():
         es = keras.callbacks.EarlyStopping(
             monitor='val_loss',
             mode='min',
-            patience=40,
+            patience=60,
             verbose=1,
             min_delta=min_delta,
             restore_best_weights=True
@@ -212,7 +223,7 @@ class DipoleModel():
                 monitor='val_loss',
                 mode='min',
                 factor=0.7,
-                patience=20,
+                patience=30,
                 verbose=1,
                 cooldown=1,
                 min_delta=0.1*min_delta,
@@ -256,7 +267,7 @@ class DipoleModel():
         # training and saving model
         try:
             history = self.model.fit(
-                [self.X, self.recoil_factors, self.dipoles, self.Y],
+                [self.X, self.recoil_factors, self.mandelstams, self.dipoles, self.Y],
                 self.Y,
                 batch_size=batch_size,
                 epochs=epochs,
@@ -287,27 +298,21 @@ class DipoleModel():
         return history
     
     def dipole_network_predictor(self, model, inputs, momenta, model_type="bare", batch_size=2**16):
-        if self.phis:
-            phi_terms = model_inputs.calculate_cs_phis(momenta, self.num_jets, cast=True)
-            if momenta.dtype != np.float32:
-                momenta = momenta.astype(np.float32)
-            dipoles, ys = inputs.calculate_inputs(momenta, [*phi_terms])
-        else:
-            if momenta.dtype != np.float32:
-                momenta = momenta.astype(np.float32)
-            dipoles, ys = inputs.calculate_inputs(momenta)
+        phi_terms = model_inputs.calculate_cs_phis(momenta, cast=False)
+        dipoles, rfs, sijs = inputs.calculate_inputs(momenta, [*phi_terms])
+
         
         if model_type == "bare":
             coefs = model.predict(
-                [momenta[:, 2:], ys],
+                [momenta, rfs, sijs],
                 verbose=1,
                 batch_size=batch_size
             )
         else:
             coefs = model.predict(
-                [momenta[:, 2:], ys, np.zeros_like(dipoles), np.zeros(len(momenta))],
+                [momenta, rfs, sijs, np.zeros_like(dipoles), np.zeros(len(momenta))],
                 verbose=1,
                 batch_size=batch_size
             )
         prediction = tf.reduce_sum(tf.multiply(coefs, dipoles), axis=1)
-        return coefs, ys, dipoles, prediction.numpy()
+        return coefs, rfs, sijs, dipoles, prediction.numpy()
