@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras import backend as K
-K.set_floatx('float32')
+K.set_floatx('float64')
 import json
 from sklearn.utils import shuffle
 
