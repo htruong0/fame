@@ -2,8 +2,8 @@ import numpy as np
 import tensorflow as tf
 from itertools import combinations
 
-from fame_pp.utilities import utility_functions, pspoint
-from fame_pp.data_generation import relevantDipoles, cs_dipole
+from fame.utilities import utility_functions, pspoint
+from fame.data_generation import relevantDipoles, cs_dipole
 
 CS = cs_dipole.CS_dipole()
 
@@ -104,6 +104,7 @@ class ModelInputsGenerator():
         return tf.convert_to_tensor(r)
 
     def calculate_mandelstam_invariants(self, p):
+        # calculates ALL s_ijs
         s = list(pspoint.PSpoint(p).sij.values())
         return tf.convert_to_tensor(s)
     

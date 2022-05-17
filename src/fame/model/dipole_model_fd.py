@@ -8,7 +8,7 @@ from tensorflow.keras import layers
 from tensorflow.keras import backend as K
 K.set_floatx('float64')
 
-from fame_pp.data_generation import model_inputs
+from fame.data_generation import model_inputs
 
 
 @tf.keras.utils.register_keras_serializable()
@@ -50,7 +50,7 @@ class DipoleModel():
         pred_scale,
         coef_scale,
         J,
-        nodes=64,
+        nodes=128,
         activation_function="relu",
         kernel_initialiser="he_uniform"
     ):
@@ -163,6 +163,7 @@ class DipoleModel():
     def custom_loss(self, y_true, y_preds, dipoles):
         '''Total loss function is the sum of MSE + factorisation penalty.'''
         mse = self.custom_MSE(y_true, y_preds, dipoles)
+        # ignore factorisation penalty for now
         # f_pen = self.factorisation_penalty(y_preds, dipoles)
         # return tf.math.add(mse, f_pen)
         return mse

@@ -1,5 +1,5 @@
 import numpy as np
-from fame_pp.utilities import utility_functions
+from fame.utilities import utility_functions
 
 class CS_dipole():
     """
@@ -10,6 +10,8 @@ class CS_dipole():
         self.C_F = C_F
         self.C_A = C_A
         self.T_R = T_R
+        # these lists are hardcoded for gg>e-e+ggddx
+        # easy to change for different processes
         self.incoming_indices = [1, 2]
         self.outgoing_indices = [5, 6, 7, 8]
         self.quarks = [7, 8]
@@ -242,6 +244,10 @@ class CS_dipole():
         return prefactor * (1 - 2*zi*zj)
 
     def map_momenta_inplace(self, i, j, k):
+        """
+        Maps m+1 momenta to m momenta using Catani-Seymour mapping.
+        Conserves momenta and keeps resulting momenta on-shell.
+        """
         self.set_indices(i, j, k)
         self.calculate_invariants()
 
@@ -302,10 +308,6 @@ class CS_dipole():
         return q_ij, q_k
 
     def map_momenta_FF(self):
-        """
-        Maps m+1 momenta to m momenta using Catani-Seymour mapping.
-        Conserves momenta and keeps resulting momenta on-shell.
-        """
         rf = self.calculate_recoil_factor()
         
         q_ij = self.pi + self.pj - rf / (1 - rf) * self.pk
