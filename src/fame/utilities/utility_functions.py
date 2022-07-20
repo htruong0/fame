@@ -28,6 +28,10 @@ def complementary(num_jets, i, j):
     return list(set(nums) - set([i, j]))
 
 
+def mdot(p1, p2):
+    return dot(p1, p1) + 2*dot(p1, p2) + dot(p2, p2)
+
+
 def dot(p1, p2):
     'Minkowski metric dot product of momenta in matrix form'
     if type(p1) != np.array or type(p2) != np.array:
