@@ -27,3 +27,21 @@ class LogLayer(layers.Layer):
     def get_config(self):
         config = super().get_config()
         return config
+
+@tf.keras.utils.register_keras_serializable()
+class CoefLayer(layers.Layer):
+    def __init__(self, coef_scale, **kwargs):
+        super(CoefLayer, self).__init__(**kwargs)
+        self.coef_scale = np.float64(coef_scale)
+        
+    def call(self, inputs):
+        batch_size = tf.shape(inputs)[0]
+        constant = tf.constant(self.coef_scale)
+        constant = tf.expand_dims(constant, axis=0)
+        return tf.broadcast_to(constant, shape=(batch_size, 1))
+        # return self.coef_scale
+    
+    def get_config(self):
+        config = super().get_config()
+        config["coef_scale"] = self.coef_scale
+        return config
