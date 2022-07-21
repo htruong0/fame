@@ -146,7 +146,7 @@ class DipoleModel():
 
     def custom_MSE(self, y_true, y_preds, dipoles):
         '''Mean-squared error using outputs from neural network and dipoles.'''
-        y_preds = self.csl(y_preds[:, :-1])
+        y_preds = self.csl(y_preds[0])
         y_pred = tf.math.reduce_sum(tf.math.multiply(y_preds, dipoles), axis=1)
         # rescale predictions the same way we did for targets
         y_pred = self.y_scaler(tf.math.asinh(y_pred / self.pred_scale)[:, None])
@@ -317,19 +317,18 @@ class DipoleModel():
         dipoles, rfs, sijs = inputs.calculate_inputs(momenta, to_concat=phi_terms)
         
         if model_type == "bare":
-            coefs = model.predict(
+            coefs, coef_scales = model.predict(
                 [momenta, tf.math.log(rfs), tf.math.log(sijs)],
                 verbose=1,
                 batch_size=batch_size
             )
         else:
-            coefs = model.predict(
+            coefs, coef_scales = model.predict(
                 [momenta, tf.math.log(rfs), tf.math.log(sijs), np.zeros_like(dipoles), np.zeros(len(momenta))],
                 verbose=1,
                 batch_size=batch_size
             )
-        coef_scale = coefs[:, -1, None]
-        coefs = coef_scale*tf.math.sinh(coefs[:, :-1])
+        coefs = coef_scales*tf.math.sinh(coefs)
         prediction = tf.reduce_sum(tf.multiply(coefs, dipoles), axis=1)
         return coefs, rfs, sijs, dipoles, prediction.numpy()
 
