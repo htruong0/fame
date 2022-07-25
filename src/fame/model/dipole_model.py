@@ -6,8 +6,8 @@ from tensorflow.keras import layers
 from tensorflow.keras import backend as K
 K.set_floatx('float64')
 
-from fame_pp.data_generation import model_inputs
-from fame_pp.model.custom_layers import CoefSinhLayer, CoefLayer
+from fame.data_generation import model_inputs
+from fame.model.custom_layers import CoefSinhLayer, CoefLayer
 
 
 class DipoleModel():

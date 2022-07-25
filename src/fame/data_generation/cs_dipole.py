@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from fame_pp.utilities import utility_functions
+from fame.utilities import utility_functions
 
 
 class CS_dipole():

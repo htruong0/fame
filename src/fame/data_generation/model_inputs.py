@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from itertools import combinations
 
-from fame_pp.utilities import utility_functions, pspoint
+from fame.utilities import utility_functions, pspoint
 
 def calc_phi(p, i, j):
     '''
