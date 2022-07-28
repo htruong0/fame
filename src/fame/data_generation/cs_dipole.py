@@ -498,7 +498,7 @@ class CS_dipole():
             elif i in self.quarks and j in self.quarks:
                 self.mij2 = 0
                 Vm = self.calculate_Vm_QQ_FI()
-            pij = self.pi + self.pij
+            pij = self.pi + self.pj
             d = self.dot(pij, pij) - self.mij2
             # already normalised by x
             Dm = Vm / d
