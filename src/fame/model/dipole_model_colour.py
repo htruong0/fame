@@ -6,8 +6,8 @@ from tensorflow.keras import layers
 from tensorflow.keras import backend as K
 K.set_floatx('float64')
 
-from fame_pp.data_generation import model_inputs
-from fame_pp.model.custom_layers import CoefSinhLayer, CoefLayer
+from fame.data_generation import model_inputs
+from fame.model.custom_layers import CoefSinhLayer, CoefLayer
 
 
 class DipoleModel():
@@ -88,6 +88,35 @@ class DipoleModel():
         model = keras.Model(inputs=inputs, outputs=outputs, name=f"dipole_{self.num_jets}_jets")
         model.add_loss(self.custom_loss(targets, outputs, dipoles))
         self.model = model  
+
+    def build_ps_model(self):
+        num_sij = self.mandelstams.shape[1]
+
+        # set shapes for inputs
+        inputs_raw = keras.Input(shape=(self.num_jets, 4,))
+        sijs = keras.Input(shape=(num_sij,))
+
+        inputs = [inputs_raw, sijs]
+
+        # standardise inputs
+        x = self.x_scaler(inputs_raw)
+        s = self.sij_scaler(sijs)
+
+        # get inputs into correct shape
+        x = layers.Flatten()(x)
+        x = layers.Concatenate()([x, s])
+        
+        act_func = self.activation_function
+        initialiser = self.kernel_initialiser
+        
+        x = layers.Dense(self.nodes, activation=act_func, kernel_initializer=initialiser)(x)
+        x = layers.Dense(self.nodes, activation=act_func, kernel_initializer=initialiser)(x)
+        x = layers.Dense(self.nodes, activation=act_func, kernel_initializer=initialiser)(x)
+        x = layers.Dense(self.nodes, activation=act_func, kernel_initializer=initialiser)(x)
+        outputs = layers.Dense(1)(x)
+
+        model = keras.Model(inputs=inputs, outputs=outputs, name=f"ps_{self.num_jets}_jets")
+        self.ps_model = model 
     
     def build_bare_model(self):
         num_dipoles = self.dipoles.shape[1]
@@ -208,12 +237,18 @@ class DipoleModel():
         '''Wrapper function to train model with useful monitoring tools and saving models.'''
 
         # since model has custom loss added can pass loss=None here
-        self.model.compile(
-            loss=loss,
-            optimizer=keras.optimizers.Adam(learning_rate=learning_rate)
-        )
+        if hasattr(self, "model"):
+            self.model.compile(
+                loss=loss,
+                optimizer=keras.optimizers.Adam(learning_rate=learning_rate)
+            )
         if hasattr(self, "base_model"):
             self.base_model.compile(
+                loss=loss,
+                optimizer=keras.optimizers.Adam(learning_rate=learning_rate)
+            )
+        if hasattr(self, "ps_model"):
+            self.ps_model.compile(
                 loss=loss,
                 optimizer=keras.optimizers.Adam(learning_rate=learning_rate)
             )
@@ -291,6 +326,9 @@ class DipoleModel():
             elif mode == 'base':
                 inputs = self.X
                 model = self.base_model
+            elif mode == "ps":
+                inputs = [self.X, tf.math.log(self.mandelstams)]
+                model = self.ps_model
             print(mode)
             history = model.fit(
                 inputs,
