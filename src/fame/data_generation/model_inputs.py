@@ -20,13 +20,13 @@ def calc_phi(p, i, j):
     nord = nord / np.linalg.norm(nord, axis=1)[:, None]
     east = np.cross(nord, pijv)
     east = east / np.linalg.norm(east, axis=1)[:, None]
-    assert np.allclose(np.sum(nord*pijv, axis=1), 0)
-    assert np.allclose(np.sum(east*pijv, axis=1), 0)
+    assert np.allclose(np.sum(nord*pijv, axis=1), 0, atol=1E-7, rtol=1E-7)
+    assert np.allclose(np.sum(east*pijv, axis=1), 0, atol=1E-7, rtol=1E-7)
 
     piv = p[:, i-1, 1:]
     ei = piv - (np.sum(pijv*piv, axis=1) / p2)[:, None]*pijv
     ei = ei / np.linalg.norm(ei, axis=1)[:, None]
-    assert np.allclose(np.sum(ei*pijv, axis=1), 0)
+    assert np.allclose(np.sum(ei*pijv, axis=1), 0, atol=1E-7, rtol=1E-7)
 
     cos = np.sum(ei*nord, axis=1)
     sin = np.sum(ei*east, axis=1)
