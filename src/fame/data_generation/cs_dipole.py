@@ -53,7 +53,7 @@ class CS_dipole():
         self.gluons = [1, 2, 5, 6, 7]
         self.massive_quarks = [3, 4]
 
-    def initialise_ttbar_4j(self):
+    def initialise_ttbar_4j_gg(self):
         """
         Initiliase settings for gg > ttxgggg.
         """
@@ -61,6 +61,16 @@ class CS_dipole():
         self.outgoing_indices = [3, 4, 5, 6, 7, 8]
         self.quarks = [3, 4]
         self.gluons = [1, 2, 5, 6, 7, 8]
+        self.massive_quarks = [3, 4]
+
+    def initialise_ttbar_4j_ug(self):
+        """
+        Initiliase settings for ug > ttxgggu.
+        """
+        self.incoming_indices = [1, 2]
+        self.outgoing_indices = [3, 4, 5, 6, 7, 8]
+        self.quarks = [1, 3, 4, 8]
+        self.gluons = [2, 5, 6, 7]
         self.massive_quarks = [3, 4]
 
     def calculate_D(self, i, j, k):

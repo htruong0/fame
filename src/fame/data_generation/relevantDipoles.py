@@ -135,9 +135,9 @@ relevant = {
         (3, 4, 7), # ms FF ttbg
         (3, 4, 1), # ms FI ttbg
         (3, 4, 2), # ms FI ttbg
-    ], 
+    ],
     # g g > t tx g g g g
-    "ttbar+4j" : [
+    "ttbar+4j_gg" : [
         (3, 5, 4), # ms FF tgtb
         (3, 5, 6), # ms FF tgg
         (3, 5, 7), # ms FF tgg
@@ -276,6 +276,130 @@ relevant = {
         (3, 4, 8), # ms FF ttbg
         (3, 4, 1), # ms FI ttbg
         (3, 4, 2), # ms FI ttbg
+    ],
+    # ttbar + 4j
+    # u g > t tx g g g u
+    "ttbar+4j_ug": [
+        (3, 5, 4), # ms FF tgtb
+        (3, 5, 6), # ms FF tgg
+        (3, 5, 7), # ms FF tgg
+        (3, 5, 8), # ms FF tgu
+        (4, 5, 3), # ms FF tbgt
+        (4, 5, 6), # ms FF tbgg
+        (4, 5, 7), # ms FF tbgg
+        (4, 5, 8), # ms FF tbgu
+        (8, 5, 3), # ms FF ugt
+        (8, 5, 4), # ms FF ugtb
+        (8, 5, 6), # ml FF ugg
+        (8, 5, 7), # ml FF ugg
+        (3, 6, 4), # ms FF tgtb
+        (3, 6, 5), # ms FF tgg
+        (3, 6, 7), # ms FF tgg
+        (3, 6, 8), # ms FF tgu
+        (4, 6, 3), # ms FF tbgt
+        (4, 6, 5), # ms FF tbgg
+        (4, 6, 7), # ms FF tbgg
+        (4, 6, 8), # ms FF tbgu
+        (8, 6, 3), # ms FF ugt
+        (8, 6, 4), # ms FF ugtb
+        (8, 6, 5), # ml FF ugg
+        (8, 6, 7), # ml FF ugg
+        (3, 7, 4), # ms FF tgtb
+        (3, 7, 5), # ms FF tgg
+        (3, 7, 6), # ms FF tgg
+        (3, 7, 8), # ms FF tgu
+        (4, 7, 3), # ms FF tbgt
+        (4, 7, 5), # ms FF tbgg
+        (4, 7, 6), # ms FF tbgg
+        (4, 7, 8), # ms FF tbgu
+        (8, 7, 3), # ms FF ugt
+        (8, 7, 4), # ms FF ugtb
+        (8, 7, 5), # ml FF ugg
+        (8, 7, 6), # ml FF ugg
+        (3, 5, 1), # ms FI tgu
+        (3, 5, 2), # ms FI tgg
+        (4, 5, 1), # ms FI tbgu
+        (4, 5, 2), # ms FI tbgg
+        (8, 5, 1), # ml FI ugu
+        (8, 5, 2), # ml FI ugg
+        (3, 6, 1), # ms FI tgu
+        (3, 6, 2), # ms FI tgg
+        (4, 6, 1), # ms FI tbgu
+        (4, 6, 2), # ms FI tbgg
+        (8, 6, 1), # ml FI ugu
+        (8, 6, 2), # ml FI ugg
+        (3, 7, 1), # ms FI tgu
+        (3, 7, 2), # ms FI tgg
+        (4, 7, 1), # ms FI tbgu
+        (4, 7, 2), # ms FI tbgg
+        (8, 7, 1), # ml FI ugu
+        (8, 7, 2), # ml FI ugg
+        (6, 5, 3), # ms FF ggt
+        (6, 5, 4), # ms FF ggtb
+        (6, 5, 7), # ml FF ggg
+        (6, 5, 8), # ml FF ggu
+        (7, 5, 3), # ms FF ggt
+        (7, 5, 4), # ms FF ggtb
+        (7, 5, 6), # ml FF ggg
+        (7, 5, 8), # ml FF ggu
+        (7, 6, 3), # ms FF ggt
+        (7, 6, 4), # ms FF ggtb
+        (7, 6, 5), # ml FF ggg
+        (7, 6, 8), # ml FF ggu
+        (6, 5, 1), # ml FI ggu
+        (6, 5, 2), # ml FI ggg
+        (7, 5, 1), # ml FI ggu
+        (7, 5, 2), # ml FI ggg
+        (7, 6, 1), # ml FI ggu
+        (7, 6, 2), # ml FI ggg
+        (1, 5, 3), # ms IF ugt
+        (1, 5, 4), # ms IF ugtb
+        (1, 5, 6), # ml IF ugg
+        (1, 5, 7), # ml IF ugg
+        (1, 5, 8), # ml IF ugu
+        (1, 6, 3), # ms IF ugt
+        (1, 6, 4), # ms IF ugtb
+        (1, 6, 5), # ml IF ugg
+        (1, 6, 7), # ml IF ugg
+        (1, 6, 8), # ml IF ugu
+        (1, 7, 3), # ms IF ugt
+        (1, 7, 4), # ms IF ugtb
+        (1, 7, 5), # ml IF ugg
+        (1, 7, 6), # ml IF ugg
+        (1, 7, 8), # ml IF ugu
+        (1, 5, 2), # ml II ugg
+        (1, 6, 2), # ml II ugg
+        (1, 7, 2), # ml II ugg
+        (2, 5, 3), # ms IF ggt
+        (2, 5, 4), # ms IF ggtb
+        (2, 5, 6), # ml IF ggg
+        (2, 5, 7), # ml IF ggg
+        (2, 5, 8), # ml IF ggu
+        (2, 6, 3), # ms IF ggt
+        (2, 6, 4), # ms IF ggtb
+        (2, 6, 5), # ml IF ggg
+        (2, 6, 7), # ml IF ggg
+        (2, 6, 8), # ml IF ggu
+        (2, 7, 3), # ms IF ggt
+        (2, 7, 4), # ms IF ggtb
+        (2, 7, 5), # ml IF ggg
+        (2, 7, 6), # ml IF ggg
+        (2, 7, 8), # ml IF ggu
+        (2, 5, 1), # ml II ggu
+        (2, 6, 1), # ml II ggu
+        (2, 7, 1), # ml II ggu
+        (1, 8, 3), # ms IF uut
+        (1, 8, 4), # ms IF uutb
+        (1, 8, 5), # ml IF uug
+        (1, 8, 6), # ml IF uug
+        (1, 8, 7), # ml IF uug
+        (1, 8, 2), # ml II uug
+        (2, 8, 3), # ms IF gut
+        (2, 8, 4), # ms IF gutb
+        (2, 8, 5), # ml IF gug
+        (2, 8, 6), # ml IF gug
+        (2, 8, 7), # ml IF gug
+        (2, 8, 1), # ml II guu
     ],
     # z + 4j
     "z+4j": [
